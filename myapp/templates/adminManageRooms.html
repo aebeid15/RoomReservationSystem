@@ -1,0 +1,1138 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Rooms</title>
+    {% load static %}
+</head>
+
+<style>
+    /* General Body Style */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: rgb(232, 232, 232);
+        margin: 0;
+        padding: 0;
+        height: 100%;
+    }
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    main {
+        flex: 1;
+        padding: 20px;
+    }
+
+    footer {
+        text-align: center;
+        padding: 20px;
+        background-color: #f8f8f8;
+    }
+
+    header {
+        background-color: #ffffff;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .logo {
+        height: 40px;
+    }
+
+    .menu-bar ul {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        gap: 20px;
+    }
+
+    .menu-bar li a {
+        color: rgb(10, 10, 10);
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .logout-button {
+        color: #a6192e;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border: 1px solid #a6192e;
+        border-radius: 4px;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .logout-button:hover {
+        background-color: #a6192e;
+        color: #ffffff;
+    }
+
+    .action-nav {
+        display: flex;
+        gap: 10px;
+    }
+
+    button {
+        padding: 10px 20px;
+        background-color: #a6192e;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: green;
+    }
+
+    .card {
+        display: none;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    input, select {
+        padding: 10px;
+        width: 100%;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    form button {
+        width: 100%;
+    }
+    .popup-card {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background-color: white;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        width: 300px;
+    }
+
+    .popup-card h2 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+    }
+
+    .popup-card p {
+        margin: 10px 0;
+        font-size: 14px;
+    }
+
+    .popup-card button {
+        background-color: #a6192e;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .popup-card button:hover {
+        background-color: green;
+    }
+
+    /* Overlay for the Popup */
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+
+    /* Room List Table */
+    .room-list {
+        margin-top: 30px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+
+    .room-list h2 {
+        margin-bottom: 10px;
+    }
+
+    .room-list table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .room-list table th,
+    .room-list table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .room-list table th {
+        background-color: #f1f1f1;
+    }
+</style>
+
+<script>
+    function showCard(action) {
+        const addRoomCard = document.getElementById('addRoomCard');
+        const removeRoomCard = document.getElementById('removeRoomCard');
+        const updateRoomCard = document.getElementById('updateRoomCard');
+
+        addRoomCard.style.display = 'none';
+        removeRoomCard.style.display = 'none';
+        updateRoomCard.style.display = 'none';
+
+        if (action === 'add') {
+            addRoomCard.style.display = 'block';
+        } else if (action === 'remove') {
+            removeRoomCard.style.display = 'block';
+        } else if (action === 'update') {
+            updateRoomCard.style.display = 'block';
+        }
+    }
+</script>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <img src="{% static 'AUSLibraryLogo.png' %}" alt="AUS Logo" class="logo">
+                <nav class="menu-bar">
+                    <ul>
+                        <li><a style="color: gray;">Room Management</a></li>
+                        <li><a href="{% url 'admin_manage_users' %}">User Management</a></li>
+                    </ul>
+                </nav>
+                <a href="{% url 'login' %}" class="logout-button">Logout</a>
+            </div>
+        </header>
+
+        <main>
+            <div class="action-nav">
+                <button onclick="showCard('add')">Add Room</button>
+                <button onclick="showCard('remove')">Remove Room</button>
+                <button onclick="showCard('update')">Update Room</button>
+            </div>
+
+            <!-- Add Room Card -->
+            <div id="addRoomCard" class="card">
+                <h2>Add Room</h2>
+                <form method="POST" action="{% url 'add_room' %}">
+                    {% csrf_token %}
+                    <label for="roomNumber">Room Number</label>
+                    <input type="text" id="roomNumber" name="room_number" required>
+
+                    <label for="location">Location</label>
+                    <select id="location" name="location" required>
+                        <option value="Library">Library</option>
+                        <option value="HSB">HSB</option>
+                        <option value="ESB">ESB</option>
+                        <option value="CHEM">CHEM</option>
+                    </select>
+
+                    <label for="capacity">Capacity</label>
+                    <input type="number" id="capacity" name="capacity" required>
+
+                    <label for="isAvailable">Is Available</label>
+                    <select id="isAvailable" name="is_available" required>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+
+                    <button type="submit">Add Room</button>
+                </form>
+            </div>
+
+            <!-- Remove Room Card -->
+            <div id="removeRoomCard" class="card">
+                <h2>Remove Room</h2>
+                <form method="POST" action="{% url 'remove_room' %}">
+                    {% csrf_token %}
+                    <label for="roomID">Room ID</label>
+                    <input type="text" id="roomID" name="room_number" required>
+
+                    <button type="submit">Remove Room</button>
+                </form>
+            </div>
+
+            <!-- Update Room Card -->
+            <div id="updateRoomCard" class="card">
+                <h2>Update Room</h2>
+                <form method="POST" action="{% url 'update_room' %}">
+                    {% csrf_token %}
+                    <label for="roomNumber">Room Number</label>
+                    <input type="text" id="roomNumber" name="room_number" required>
+
+                    <label for="location">Location</label>
+                    <select id="location" name="location" required>
+                        <option value="Library">Library</option>
+                        <option value="HSB">HSB</option>
+                        <option value="ESB">ESB</option>
+                        <option value="CHEM">CHEM</option>
+                    </select>
+
+                    <label for="capacity">Capacity</label>
+                    <input type="number" id="capacity" name="capacity" required>
+
+                    <label for="isAvailable">Is Available</label>
+                    <select id="isAvailable" name="is_available" required>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+
+                    <button type="submit">Update Room</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 AUS Room Reservation System. All rights reserved.</p>
+    </footer>
+    let currentRoomIndex = 0;
+const rooms = JSON.parse('{{ rooms|safe }}'); // Pass room list as JSON
+
+function showRoom(index) {
+    const room = rooms[index];
+    document.getElementById('RoomID').innerText = room.room_number;
+    document.getElementById('roomType').innerText = room.equipment;
+    document.getElementById('roomCapacity').innerText = room.capacity;
+    document.getElementById('roomLocation').innerText = room.location;
+}
+
+function nextRoom() {
+    currentRoomIndex = (currentRoomIndex + 1) % rooms.length;
+    showRoom(currentRoomIndex);
+}
+
+function previousRoom() {
+    currentRoomIndex = (currentRoomIndex - 1 + rooms.length) % rooms.length;
+    showRoom(currentRoomIndex);
+}
+function showPopup(title, message) {
+    document.getElementById('popup-title').innerText = title;
+    document.getElementById('popup-message').innerText = message;
+    document.getElementById('popup-card').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+// Close the Popup
+function closePopup() {
+    document.getElementById('popup-card').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+}
+
+// Example usage after form submission
+{% if messages %}
+    showPopup("Success", "{{ messages|escapejs }}");
+{% endif %}
+</body>
+</html> {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Rooms - Admin Dashboard</title>
+    {% load static %}
+<style>
+    /* Modern Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Background and Base Styles */
+    body {
+        min-height: 100vh;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(128, 0, 0, 0.05) 0%, rgba(128, 0, 0, 0.02) 100%);
+        z-index: 1;
+        animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Wrapper */
+    .wrapper {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Modern Header */
+    header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .logo {
+        height: 40px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        transition: transform 0.3s ease;
+    }
+
+    .logo:hover {
+        transform: scale(1.05);
+    }
+
+    /* Navigation Menu */
+    .menu-bar ul {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+    }
+
+    .menu-bar a {
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .menu-bar a[style="color: gray;"] {
+        background: rgba(128, 0, 0, 0.1);
+        color: #800000 !important;
+    }
+
+    .menu-bar a:hover {
+        background: rgba(128, 0, 0, 0.1);
+        color: #800000;
+    }
+
+    .logout-button {
+        color: #800000;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #800000;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .logout-button:hover {
+        background: #800000;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+    }
+
+    /* Main Content */
+    main {
+        flex: 1;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* Action Navigation */
+    .action-nav {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .action-nav button {
+        flex: 1;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        color: #800000;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .action-nav button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(128, 0, 0, 0.2);
+        background: #800000;
+        color: white;
+    }
+
+    /* Card Styles */
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: none;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card h2 {
+        color: #800000;
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    /* Form Styles */
+    form {
+        display: grid;
+        gap: 1.5rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    input, select {
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: #800000;
+        box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+    }
+
+    form button {
+        padding: 1rem;
+        background: linear-gradient(45deg, #800000, #A00000);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    form button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+        background: linear-gradient(45deg, #A00000, #800000);
+    }
+
+    /* Room List Button */
+    .view-rooms-button {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: linear-gradient(45deg, #800000, #A00000);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .view-rooms-button:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 24px rgba(128, 0, 0, 0.3);
+    }
+
+    /* Room List Modal */
+    .room-list-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 1200px;
+        max-height: 80vh;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        z-index: 1000;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -40%);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    .room-list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .room-list-header h2 {
+        color: #800000;
+        margin: 0;
+        font-size: 1.5rem;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        color: #800000;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .close-modal:hover {
+        transform: rotate(90deg);
+    }
+
+    .room-list-content {
+        padding: 2rem;
+        overflow-y: auto;
+        max-height: calc(80vh - 80px);
+    }
+
+    /* Modern Table Styles */
+    .modern-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 1rem;
+    }
+
+    .modern-table th,
+    .modern-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .modern-table th {
+        background: rgba(128, 0, 0, 0.1);
+        color: #800000;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        backdrop-filter: blur(10px);
+    }
+
+    .modern-table tr {
+        transition: all 0.3s ease;
+    }
+
+    .modern-table tr:hover {
+        background: rgba(128, 0, 0, 0.05);
+        transform: translateX(5px);
+    }
+
+    .modern-table td {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .modern-table td::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(128, 0, 0, 0.2), transparent);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .modern-table tr:hover td::before {
+        transform: scaleX(1);
+    }
+
+    /* Status Indicator */
+    .status-indicator {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-available {
+        background: rgba(0, 128, 0, 0.1);
+        color: green;
+    }
+
+    .status-unavailable {
+        background: rgba(128, 0, 0, 0.1);
+        color: #800000;
+    }
+
+    /* Footer */
+    footer {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Overlay */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(5px);
+        z-index: 999;
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .menu-bar ul {
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .action-nav {
+            flex-direction: column;
+        }
+
+        main {
+            padding: 1rem;
+        }
+
+        .card {
+            padding: 1rem;
+        }
+
+        .room-list-modal {
+            width: 95%;
+            max-height: 90vh;
+        }
+
+        .view-rooms-button {
+            bottom: 1rem;
+            right: 1rem;
+            width: 50px;
+            height: 50px;
+            font-size: 1.25rem;
+        }
+
+        .modern-table {
+            font-size: 0.875rem;
+        }
+
+        .modern-table th,
+        .modern-table td {
+            padding: 0.75rem;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <img src="{% static 'AUSLibraryLogo.png' %}" alt="AUS Logo" class="logo">
+                <nav class="menu-bar">
+                    <ul>
+                        <li><a style="color: gray;">Room Management</a></li>
+                        <li><a href="{% url 'admin_manage_users' %}">User Management</a></li>
+                    </ul>
+                </nav>
+                <a href="{% url 'login' %}" class="logout-button">Logout</a>
+            </div>
+        </header>
+
+        <main>
+            <div class="action-nav">
+                <button onclick="showCard('add')">Add Room</button>
+                <button onclick="showCard('remove')">Remove Room</button>
+                <button onclick="showCard('update')">Update Room</button>
+            </div>
+
+            <!-- Add Room Card -->
+            <div id="addRoomCard" class="card">
+                <h2>Add New Room</h2>
+                <form method="POST" action="{% url 'add_room' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="roomNumber">Room Number</label>
+                        <input type="text" id="roomNumber" name="room_number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <select id="location" name="location" required>
+                            <option value="">Select Location</option>
+                            <option value="Library">Library</option>
+                            <option value="HSB">HSB</option>
+                            <option value="ESB">ESB</option>
+                            <option value="CHEM">CHEM</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="capacity">Capacity</label>
+                        <input type="number" id="capacity" name="capacity" required min="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="isAvailable">Availability Status</label>
+                        <select id="isAvailable" name="is_available" required>
+                            <option value="true">Available</option>
+                            <option value="false">Not Available</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Add Room</button>
+                </form>
+            </div>
+
+            <!-- Remove Room Card -->
+            <div id="removeRoomCard" class="card">
+                <h2>Remove Room</h2>
+                <form method="POST" action="{% url 'remove_room' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="roomID">Room ID</label>
+                        <input type="text" id="roomID" name="room_number" required>
+                    </div>
+                    <button type="submit">Remove Room</button>
+                </form>
+                
+            </div>
+
+            <!-- Update Room Card -->
+            <div id="updateRoomCard" class="card">
+                <h2>Update Room Details</h2>
+                <form method="POST" action="{% url 'update_room' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="roomNumber">Room Number</label>
+                        <input type="text" id="roomNumber" name="room_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <select id="location" name="location" required>
+                            <option value="">Select Location</option>
+                            <option value="Library">Library</option>
+                            <option value="HSB">HSB</option>
+                            <option value="ESB">ESB</option>
+                            <option value="CHEM">CHEM</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="capacity">Capacity</label>
+                        <input type="number" id="capacity" name="capacity" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="isAvailable">Availability Status</label>
+                        <select id="isAvailable" name="is_available" required>
+                            <option value="true">Available</option>
+                            <option value="false">Not Available</option>
+                        </select>
+                    </div>
+                    <button type="submit">Update Room</button>
+                </form>
+                
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 AUS Room Reservation System. All rights reserved.</p>
+        </footer>
+
+        <!-- Floating Action Button for Room List -->
+        <button class="view-rooms-button" onclick="showRoomList()" title="View Available Rooms">
+            📋
+        </button>
+    </div>
+
+    <!-- Room List Modal -->
+    <div id="roomListModal" class="room-list-modal">
+        <div class="room-list-header">
+            <h2>Available Rooms</h2>
+            <button class="close-modal" onclick="closeRoomList()">×</button>
+        </div>
+        <div class="room-list-content">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Room Number</th>
+                        <th>Location</th>
+                        <th>Capacity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for room in rooms %}
+                    <tr>
+                        <td>{{ room.room_number }}</td>
+                        <td>{{ room.location }}</td>
+                        <td>{{ room.capacity }}</td>
+                        <td>
+                            <span class="status-indicator {% if room.is_available %}status-available{% else %}status-unavailable{% endif %}">
+                                {% if room.is_available %}Available{% else %}Not Available{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+<div id="popupConfirmation" class="room-list-modal" style="display: none;">
+    <div class="room-list-header">
+        <h2 id="popupTitle" style="color: #800000;">Success</h2>
+        <button class="close-modal" onclick="closePopup()">×</button>
+    </div>
+    <div class="room-list-content">
+        <p id="popupMessage" style="font-size: 1.1rem; color: #333; margin-bottom: 1.5rem;"></p>
+        <table class="modern-table">
+            <thead>
+                <tr>
+                    <th>Room Number</th>
+                    <th>Location</th>
+                    <th>Capacity</th>
+                    <th>Availability</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="popupRoomNumber"></td>
+                    <td id="popupLocation"></td>
+                    <td id="popupCapacity"></td>
+                    <td id="popupAvailability"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+    <!-- Overlay -->
+    <div id="overlay" class="overlay"></div>
+<!-- Replace your existing script section with this updated version -->
+<script>
+    function showCard(action) {
+        const addRoomCard = document.getElementById('addRoomCard');
+        const removeRoomCard = document.getElementById('removeRoomCard');
+        const updateRoomCard = document.getElementById('updateRoomCard');
+
+        // Hide all cards first
+        addRoomCard.style.display = 'none';
+        removeRoomCard.style.display = 'none';
+        updateRoomCard.style.display = 'none';
+
+        // Show the selected card
+        if (action === 'add') {
+            addRoomCard.style.display = 'block';
+        } else if (action === 'remove') {
+            removeRoomCard.style.display = 'block';
+        } else if (action === 'update') {
+            updateRoomCard.style.display = 'block';
+        }
+    }
+
+    function showRoomList() {
+        document.getElementById('roomListModal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeRoomList() {
+        document.getElementById('roomListModal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+    }
+
+    function showPopup(action, roomDetails) {
+        const popup = document.getElementById('popupConfirmation');
+        const overlay = document.getElementById('overlay');
+        const title = document.getElementById('popupTitle');
+        const message = document.getElementById('popupMessage');
+        
+        // Set title and message based on action
+        if (action === 'add') {
+            title.textContent = 'Room Added Successfully';
+            message.textContent = `Room ${roomDetails.room_number} has been successfully added.`;
+        } else if (action === 'remove') {
+            title.textContent = 'Room Removed Successfully';
+            message.textContent = `Room ${roomDetails.room_number} has been successfully removed from the system.`;
+        } else if (action === 'update') {
+            title.textContent = 'Room Updated Successfully';
+            message.textContent = `Room ${roomDetails.room_number} has been successfully updated.`;
+        }
+    
+        // Update room details in the popup
+        document.getElementById('popupRoomNumber').textContent = roomDetails.room_number || '';
+        document.getElementById('popupLocation').textContent = roomDetails.location || '';
+        document.getElementById('popupCapacity').textContent = roomDetails.capacity || '';
+        document.getElementById('popupAvailability').textContent = 
+            roomDetails.is_available ? 'Available' : 'Not Available';
+    
+        // Show popup and overlay
+        popup.style.display = 'block';
+        overlay.style.display = 'block';
+    }
+
+    function closePopup() {
+        document.getElementById('popupConfirmation').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none';
+        // Use window.location.href instead of location.reload()
+        window.location.href = "{% url 'admin_manage_rooms' %}";
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('overlay').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeRoomList();
+            closePopup();
+        }
+    });
+
+        // Initialize popup only once when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if messages %}
+                {% for message in messages %}
+                    {% if forloop.first %}
+                        {% if room_removed %}
+                            showPopup('remove', {
+                                room_number: "{{ removed_room_number|escapejs }}",
+                                location: "Removed",
+                                capacity: "N/A",
+                                is_available: false
+                            });
+                        {% elif room_updated %}
+                            showPopup('update', {
+                                room_number: "{{ room.room_number|escapejs }}",
+                                location: "{{ room.location|escapejs }}",
+                                capacity: "{{ room.capacity|escapejs }}",
+                                is_available: {{ room.is_available|yesno:"true,false" }}
+                            });
+                        {% elif room_added %}
+                            showPopup('add', {
+                                room_number: "{{ room.room_number|escapejs }}",
+                                location: "{{ room.location|escapejs }}",
+                                capacity: "{{ room.capacity|escapejs }}",
+                                is_available: {{ room.is_available|yesno:"true,false" }}
+                            });
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        });
+</script>
+</body>
+</html>

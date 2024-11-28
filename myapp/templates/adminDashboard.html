@@ -1,0 +1,463 @@
+{% comment %} <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: rgb(232, 232, 232);
+        margin: 0;
+        padding: 0;
+    }
+    html, body {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Wrapper for all content except footer */
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* Main content takes up available space between header and footer */
+    main {
+        flex: 1;
+        padding: 20px;
+    }
+
+    /* Footer styles */
+    footer {
+        text-align: center;
+        padding: 20px;
+        background-color: #f8f8f8;
+    }
+
+    /*above ensure that footer is located down*/
+
+
+    header {
+        background-color: #ffffff;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .logo {
+        height: 40px; /* Adjust logo size as needed */
+        margin-right: 1rem;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+        color: #a6192e;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .logout-button {
+        color: #a6192e;
+        text-decoration: none;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border: 1px solid #a6192e;
+        border-radius: 4px;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .logout-button:hover {
+        background-color: #a6192e;
+        color: #ffffff;
+    }
+
+    main {
+        padding: 2rem;
+    }
+
+    .alert-message {
+        background-color:white; /* background alert color */
+        color: black; /* text for alert */
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid silver;/*around box*/
+        font-size: 0.9rem;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .alert-message h2 {
+        font-size: 1.2rem; /* Smaller size for alert title */
+        margin: 0 0 0.5rem;
+    }
+
+    .alert-message p {
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    .card-container {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        
+    }
+
+    .card {
+        background-color:#ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1.5rem;
+        width: 200px;
+        text-align: center;
+        font-weight: bold;
+        color: #333333;
+        box-shadow:  0px 4px 8px rgba(0, 0, 0, 0.1); ;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        
+    }
+
+    .card:hover {
+        background-color: #d4edda; /* light green on hover */
+        border-color: #c3e6cb;
+        
+    }
+
+    .card h3 {
+        margin: 0;
+        margin-top: 1rem;
+    }
+
+    .card-image {
+        width: 200px;
+        height: 200px;
+        margin-bottom: 0.5rem;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+
+    .card:hover .card-image {
+        opacity: 1;
+    }
+</style>
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="logo-container">
+                <img src="{% static 'AUSLibraryLogo.png' %}" alt="AUS Logo" class="logo">
+                <h1>Admin Dashboard</h1>
+            </div>
+            <a href="{% url 'login' %}" class="logout-button">Logout</a>
+        </header>
+        <main>
+            <section class="alert-message">
+                <h2>Welcome, Admin</h2>
+                <p>Choose a section to manage rooms or users.</p><br>
+            </section><br><br><br>
+            <section class="card-container">
+                <div class="card" onclick="location.href='{% url 'admin_manage_rooms' %}'">
+                    <img src="{% static 'roomManagement.png' %}" alt="Room Management" class="card-image"  style="width: 198px; height: 200px;">
+                    <h3>Room Management</h3>
+                </div>
+                <div class="card" onclick="location.href='{% url 'admin_manage_users' %}'">
+                    <img src="{% static 'userManagement.png' %}" alt="User Management" class="card-image" >
+                    <h3>User Management</h3>
+                </div>
+            </section>
+        </main>
+    </div>
+    <footer>
+        <p>&copy; 2024 AUS Room Reservation System. All rights reserved.</p>
+    </footer>
+</body>
+</html> {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+<style>
+    /* Modern Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Background and Base Styles */
+    body {
+        min-height: 100vh;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(128, 0, 0, 0.05) 0%, rgba(128, 0, 0, 0.02) 100%);
+        z-index: 1;
+        animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Wrapper */
+    .wrapper {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Modern Header */
+    header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .logo {
+        height: 40px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        transition: transform 0.3s ease;
+    }
+
+    .logo:hover {
+        transform: scale(1.05);
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+        background: linear-gradient(45deg, #800000, #A00000);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .logout-button {
+        color: #800000;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #800000;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        background: transparent;
+    }
+
+    .logout-button:hover {
+        background: #800000;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+    }
+
+    /* Main Content */
+    main {
+        flex: 1;
+        padding: 2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Modern Alert Message */
+    .alert-message {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        margin-bottom: 3rem;
+        animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .alert-message h2 {
+        font-size: 1.5rem;
+        color: #800000;
+        margin-bottom: 0.5rem;
+    }
+
+    .alert-message p {
+        color: #666;
+        font-size: 1rem;
+    }
+
+    /* Modern Card Container */
+    .card-container {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+        padding: 1rem;
+    }
+
+    /* Modern Cards */
+    .card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        width: 280px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(128, 0, 0, 0.1), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 12px 48px rgba(128, 0, 0, 0.2);
+    }
+
+    .card:hover::before {
+        opacity: 1;
+    }
+
+    .card-image {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-image {
+        transform: scale(1.05);
+    }
+
+    .card h3 {
+        color: #800000;
+        font-size: 1.25rem;
+        margin: 0;
+        position: relative;
+    }
+
+    /* Modern Footer */
+    footer {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    footer p {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        header {
+            padding: 1rem;
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .logo-container {
+            flex-direction: column;
+        }
+
+        .card-container {
+            gap: 1rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 280px;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="logo-container">
+                <img src="{% static 'AUSLibraryLogo.png' %}" alt="AUS Logo" class="logo">
+                <h1>Admin Dashboard</h1>
+            </div>
+            <a href="{% url 'login' %}" class="logout-button">Logout</a>
+        </header>
+        <main>
+            <section class="alert-message">
+                <h2>Welcome, Admin</h2>
+                <p>Choose a section to manage rooms or users.</p>
+            </section>
+            <section class="card-container">
+                <div class="card" onclick="location.href='{% url 'admin_manage_rooms' %}'">
+                    <img src="{% static 'roomManagement.png' %}" alt="Room Management" class="card-image">
+                    <h3>Room Management</h3>
+                </div>
+                <div class="card" onclick="location.href='{% url 'admin_manage_users' %}'">
+                    <img src="{% static 'userManagement.png' %}" alt="User Management" class="card-image">
+                    <h3>User Management</h3>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2024 AUS Room Reservation System. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

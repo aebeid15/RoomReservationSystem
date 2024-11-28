@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Selection - AUS Room Reservation</title>
+    {% load static %}
+<style>
+    /* General Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Body and Wrapper */
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+    }
+
+    .wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Header */
+    header {
+        background-color: rgba(255, 255, 255, 0.95);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+    }
+
+    .logo {
+        height: 40px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .menu-bar ul {
+        list-style: none;
+        display: flex;
+        gap: 1.5rem;
+    }
+
+    .menu-bar a {
+        text-decoration: none;
+        font-weight: bold;
+        color: #333;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .menu-bar a:hover {
+        background-color: rgba(128, 0, 0, 0.1);
+        color: #800000;
+    }
+
+    .menu-bar a:last-child {
+        border: 2px solid #800000;
+        padding: 0.5rem 1rem;
+    }
+
+    .menu-bar a:last-child:hover {
+        background-color: #800000;
+        color: white;
+    }
+
+    /* Main Content */
+    main {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    .location-selection {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        justify-content: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    /* Location Cards */
+    .card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        overflow: hidden;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        width: 250px;
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .building-image {
+        height: 65%;
+        width: 100%;
+        object-fit: cover;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .card h2 {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        padding: 1rem;
+    }
+
+    /* Alert Message */
+    .alert-message {
+        background-color: #fff;
+        border-left: 5px solid #800000;
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        margin: 1.5rem auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        position: relative;
+        max-width: 800px;
+        color: #333;
+    }
+
+    .alert-message p {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .dismiss-button {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.2rem;
+        background: none;
+        border: none;
+        color: #800000;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+
+    .dismiss-button:hover {
+        color: #A00000;
+    }
+
+    /* Footer */
+    footer {
+        background-color: rgba(255, 255, 255, 0.95);
+        text-align: center;
+        padding: 1rem;
+        font-size: 0.9rem;
+        color: #777;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+</style>
+<script>
+    function dismissAlert() {
+        document.getElementById('help-message').style.display = 'none';
+    }
+
+    function navigateToDashboard(building) {
+        const baseUrl = "{% url 'user_reserve_rooms' %}";
+        window.location.href = `${baseUrl}?building=${building}`;
+    }
+</script>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <img src="{% static 'AUSLibraryLogo.png' %}" alt="AUS Logo" class="logo">
+            <nav class="menu-bar">
+                <ul>
+                    <li><a href="{% url 'user_manage_bookings' %}">Manage Booking</a></li>
+                    <li><a href="{% url 'user_view_history' %}">View Booking History</a></li>
+                    <li><a href="{% url 'user_account' %}">Library Account</a></li>
+                    <li><a href="{% url 'login' %}">LogOut</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <section id="help-message" class="alert-message">
+            <button class="dismiss-button" onclick="dismissAlert()">X</button>
+            <p>Click on a building location below to view room availability. For assistance, contact support at <a href="mailto:support@aus.edu">support@aus.edu</a>.</p>
+        </section>
+
+        <main>
+            <div class="location-selection">
+                <div class="card" onclick="navigateToDashboard('library')">
+                    <img src="{% static 'library.jpg' %}" alt="Library" class="building-image">
+                    <h2>Library</h2>
+                </div>
+                <div class="card" onclick="navigateToDashboard('esb')">
+                    <img src="{% static 'esb.jpg' %}" alt="ESB Building" class="building-image">
+                    <h2>ESB</h2>
+                </div>
+                <div class="card" onclick="navigateToDashboard('hsb')">
+                    <img src="{% static 'hsb.jpg' %}" alt="HSB Building" class="building-image">
+                    <h2>HSB</h2>
+                </div>
+                <div class="card" onclick="navigateToDashboard('chem')">
+                    <img src="{% static 'chem.jpg' %}" alt="CHEM Building" class="building-image">
+                    <h2>CHEM</h2>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 AUS Room Reservation System. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AUS Room Reservation</title>
+    {% load static %}
+<style>
+    /* Modern Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Background and Base Styles */
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        background-image: url('{% static "background.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Animated Background */
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(128, 0, 0, 0.05) 0%, rgba(128, 0, 0, 0.02) 100%);
+        z-index: 1;
+        animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Modern Login Container */
+    .login-container {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        max-width: 420px;
+        padding: 2.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+
+    .login-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(128, 0, 0, 0.15);
+    }
+
+    /* Logo Styling */
+    .logo {
+        width: 280px;
+        height: auto;
+        margin-bottom: 1.5rem;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        transition: transform 0.3s ease;
+    }
+
+    .logo:hover {
+        transform: scale(1.02);
+    }
+
+    /* Modern Title */
+    .login-title {
+        color: #333;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        background: linear-gradient(45deg, #800000, #A00000);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* Form Styling */
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* Input Fields */
+    .input-field {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: #800000;
+        box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+    }
+
+    /* Login Button */
+    .login-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(45deg, #800000, #A00000);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .login-btn:hover {
+        background: linear-gradient(45deg, #A00000, #800000);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+    }
+
+    .login-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Error Message Styling */
+    .error-message {
+        color: #800000;
+        font-size: 0.875rem;
+        text-align: center;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        background: rgba(128, 0, 0, 0.1);
+        border-radius: 8px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
+        .login-container {
+            margin: 1rem;
+            padding: 1.5rem;
+        }
+
+        .logo {
+            width: 220px;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="{% static 'AUSLibraryLogo.png' %}" alt="AUS Logo" class="logo">
+        
+        <h2 class="login-title">AUS Room Reservation</h2>
+        
+        {% if messages %}
+            <div>
+                {% for message in messages %}
+                    <p class="error-message">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form class="login-form" method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            <input 
+                type="email" 
+                name="email" 
+                placeholder="Email (e.g., Id/name@aus.edu)" 
+                class="input-field" 
+                required
+                autocomplete="email"
+            >
+            <input 
+                type="password" 
+                name="password" 
+                placeholder="Password" 
+                class="input-field" 
+                required
+                autocomplete="current-password"
+            >
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking History - AUS Room Reservation</title>
+    {% load static %}
+<style>
+    /* Modern Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Background and Base Styles */
+    body {
+        min-height: 100vh;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(128, 0, 0, 0.05) 0%, rgba(128, 0, 0, 0.02) 100%);
+        z-index: 1;
+        animation: gradientBG 15s ease infinite;
+    }
+
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Wrapper */
+    .wrapper {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Modern Header */
+    header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .logo {
+        height: 40px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        transition: transform 0.3s ease;
+    }
+
+    .logo:hover {
+        transform: scale(1.05);
+    }
+
+    /* Navigation Menu */
+    .menu-bar ul {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+    }
+
+    .menu-bar a {
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .menu-bar a[style="color: gray;"] {
+        background: rgba(128, 0, 0, 0.1);
+        color: #800000 !important;
+    }
+
+    .menu-bar a:hover {
+        background: rgba(128, 0, 0, 0.1);
+        color: #800000;
+    }
+
+    .logout-button {
+        color: #800000;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #800000;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .logout-button:hover {
+        background: #800000;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+    }
+
+    /* Main Content */
+    main {
+        flex: 1;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    h2 {
+        color: #800000;
+        margin-bottom: 1.5rem;
+        font-size: 1.75rem;
+        text-align: center;
+    }
+
+    /* Booking Table */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto;
+        max-width: 1000px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    thead {
+        background: rgba(128, 0, 0, 0.1);
+    }
+
+    th {
+        text-align: left;
+        padding: 1rem;
+        color: #800000;
+        font-weight: 600;
+    }
+
+    td {
+        padding: 1rem;
+        color: #333;
+    }
+
+    tbody tr {
+        transition: background 0.3s ease;
+    }
+
+    tbody tr:hover {
+        background: rgba(128, 0, 0, 0.05);
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    footer {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    }
+</style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <img src="{% static 'AUSLibraryLogo.png' %}" alt="AUS Logo" class="logo">
+                <nav class="menu-bar">
+                    <ul>
+                        <li><a href="{% url 'user_reserve_rooms' %}">Room Reservation</a></li>
+                        <li><a href="{% url 'user_manage_bookings' %}">Manage Booking</a></li>
+                        <li><a style="color: gray;">View Booking History</a></li>
+                        <li><a href="{% url 'user_account' %}">My Account</a></li>
+                        <li><a href="{% url 'login' %}" class="logout-button">LogOut</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <h2>Your Booking History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Room</th>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking.id }}</td>
+                        <td>{{ booking.room.room_number }}</td>
+                        <td>{{ booking.start_time|date:"Y-m-d" }}</td>
+                        <td>{{ booking.start_time|time:"H:i" }}</td>
+                        <td>{{ booking.end_time|time:"H:i" }}</td>
+                        <td>{{ booking.get_status_display }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No booking history found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 AUS Room Reservation System. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

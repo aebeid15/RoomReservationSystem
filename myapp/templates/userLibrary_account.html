@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - AUS Room Reservation</title>
+    {% load static %}
+<style>
+    /* Modern Reset */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Background and Base Styles */
+    body {
+        min-height: 100vh;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background-image: url('{% static "background.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        position: relative;
+        overflow-x: hidden;
+        color: #333;
+    }
+
+    /* Overlay for readability */
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9); /* Semi-transparent white overlay */
+        z-index: 1;
+    }
+
+    .wrapper {
+        position: relative;
+        z-index: 2;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Modern Header */
+    header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .logo {
+        height: 40px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        transition: transform 0.3s ease;
+    }
+
+    .logo:hover {
+        transform: scale(1.05);
+    }
+
+    /* Navigation Menu */
+    .menu-bar ul {
+        display: flex;
+        gap: 2rem;
+        list-style: none;
+    }
+
+    .menu-bar a {
+        color: #333;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .menu-bar a[style="color: gray;"] {
+        background: rgba(128, 0, 0, 0.1);
+        color: #800000 !important;
+    }
+
+    .menu-bar a:hover {
+        background: rgba(128, 0, 0, 0.1);
+        color: #800000;
+    }
+
+    .logout-button {
+        color: #800000;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border: 2px solid #800000;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .logout-button:hover {
+        background: #800000;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+    }
+
+    /* Main Content */
+    main {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* Form Section */
+    #phone-number-section {
+        width: 100%;
+        max-width: 600px;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    #phone-number-section h3 {
+        color: #800000;
+        margin-bottom: 1rem;
+    }
+
+    #phone-number-section form {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    #phone-number-section label {
+        text-align: left;
+        font-weight: bold;
+        color: #333;
+    }
+
+    #phone-number-section input {
+        padding: 0.75rem;
+        border: 2px solid #ccc;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    #phone-number-section input:focus {
+        border-color: #800000;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(128, 0, 0, 0.1);
+    }
+
+    #phone-number-section button {
+        padding: 0.75rem;
+        font-size: 1rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #800000, #A00000);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    #phone-number-section button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+        background: linear-gradient(45deg, #A00000, #800000);
+    }
+
+    footer {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    }
+</style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="header-content">
+                <img src="{% static 'AUSLibraryLogo.png' %}" alt="AUS Logo" class="logo">
+                <nav class="menu-bar">
+                    <ul>
+                        <li><a href="{% url 'user_reserve_rooms' %}">Room Reservation</a></li>
+                        <li><a href="{% url 'user_manage_bookings' %}">Manage Booking</a></li>
+                        <li><a href="{% url 'user_view_history' %}">View Booking History</a></li>
+                        <li><a style="color: gray;">My Account</a></li>
+                        <li><a href="{% url 'login' %}" class="logout-button">LogOut</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <section id="phone-number-section">
+                <h3>Update Your Contact Information</h3>
+                <form>
+                    <label for="name">Full Name:</label>
+                    <input type="text" id="name" value="User Name" readonly>
+
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" value="id/name@aus.edu" readonly>
+
+                    <label for="phone-number">Phone Number:</label>
+                    <input type="tel" id="phone-number" placeholder="Enter your phone number" required>
+
+                    <button type="submit">Update Phone Number</button>
+                </form>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 AUS Room Reservation System. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
+
