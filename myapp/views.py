@@ -80,7 +80,8 @@ def add_room(request):
         room_number = request.POST['room_number']
         location = request.POST['location']
         capacity = request.POST['capacity']
-        is_available = request.POST['is_available'] == 'true'
+        #is_available = request.POST['is_available'] == 'true' 
+        is_available = request.POST.get('is_available') == 'true'
 
         # Add the room to the database
         room = Room.objects.create(
@@ -160,9 +161,9 @@ def admin_manage_users(request):
 def user_reserve_rooms(request):
     rooms = Room.objects.all()
     if request.method == "POST":
-        if not request.user.is_authenticated:
-            messages.error(request, "You must be logged in to book a room.")
-            return redirect("login")  # Redirect to login page
+        #if not request.user.is_authenticated:
+            #messages.error(request, "You must be logged in to book a room.")
+            #return redirect("login")  # Redirect to login page
 
         room_id = request.POST.get("room_id")
         start_time = request.POST.get("start_time")
@@ -204,12 +205,47 @@ def user_manage_bookings(request):
                 booking.save()
                 messages.success(request, "Booking cancelled successfully.")
             elif action == "update":
-                # Update logic (not implemented in this example)
-                messages.info(request, "Update functionality is not implemented.")
+                # Redirect to the update booking page
+                return redirect("update_booking", booking_id=booking_id)
         except Booking.DoesNotExist:
             messages.error(request, "Booking not found.")
 
     return render(request, "userManage_Booking.html", {"bookings": bookings})
+
+
+#update booking function
+def update_booking(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    if request.method == "POST":
+        booking_id = request.POST.get("booking_id")
+        booking = Booking.objects.get(id=booking_id)
+        start_time = booking.start_time
+        end_time = booking.end_time
+        new_room = request.POST.get("new_room_id")
+        new_start_time = request.POST.get("new_start_time")
+        new_end_time = request.POST.get("new_end_time")
+
+        try:
+            new_room = Room.objects.get(id=new_room)
+            overlapping_bookings = Booking.objects.filter(
+                room=new_room,
+                start_time__lt=new_end_time,
+                end_time__gt=new_start_time,
+                status='active'
+            )
+            if overlapping_bookings.exists():
+                messages.error(request, "Room is not available for the selected time.")
+            else:
+                booking.room = new_room
+                booking.start_time = new_start_time
+                booking.end_time = new_end_time
+                booking.save()
+                messages.success(request, "Booking updated successfully.")
+                return redirect("user_manage_bookings")  # Redirect to manage bookings page
+        except Room.DoesNotExist:
+            messages.error(request, "Invalid room selected.")
+
+    return render(request, "updateBooking.html", {"booking": booking})
 
 
 # Booking History Page

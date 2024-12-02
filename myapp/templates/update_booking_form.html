@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head> 
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Update Booking</title>
+    </head>
+    <style> 
+        form {
+            width: 300px;
+            margin: 0 auto;
+        }
+            /* Buttons in Actions */
+        .update-button, .cancel-button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .update-button {
+            background: linear-gradient(45deg, #004d40, #00796b);
+            color: white;
+        }
+
+        .update-button:hover {
+            background: linear-gradient(45deg, #00796b, #004d40);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 77, 64, 0.2);
+        }
+
+        .cancel-button {
+        background: linear-gradient(45deg, #800000, #A00000);
+        color: white;
+        }
+
+        .cancel-button:hover {
+            background: linear-gradient(45deg, #A00000, #800000);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(128, 0, 0, 0.2);
+        }
+    </style>
+<body>
+    <form method="POST" action="{% url 'update_booking' %}" style="display: inline;">
+        {% csrf_token %}
+        <label for="new_room">New Room:</label>
+        <select id="new_room" name="new_room" value="{{ room.id }}">
+            {% for room in rooms %}
+                <option value="{{ room.id }}">{{ room.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" id="new_room" name="new_room" value="{{ room.id }}">
+        <br>
+        <label for="new_start_time">New Start Time:</label>
+        <input type="datetime-local" id="new_start_time" name="new_start_time">
+        <br>
+        <label for="new_end_time">New End Time:</label>
+        <input type="datetime-local" id="new_end_time" name="new_end_time">
+        <br>
+        <input type="hidden" name="update_submit" value="True">
+        <input type="hidden" name="booking_id" value="{{ booking.id }}">
+        <button type="submit" class="update-button">Update</button>
+    </form>
+</body>
+</html>

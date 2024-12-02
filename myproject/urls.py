@@ -33,8 +33,10 @@ urlpatterns = [
     path('update_room/', views.update_room, name='update_room'),
     path('manage_users/', views.admin_manage_users, name='admin_manage_users'),
     path('rooms/', views.view_rooms, name='view_rooms'),
-    path("reserve_rooms/", views.user_reserve_rooms, name="user_reserve_rooms"),
-    path("manage_bookings/", views.user_manage_bookings, name="user_manage_bookings"),
-    path("view_history/", views.user_view_history, name="user_view_history"),
+    path('update_booking/', views.update_booking, name='update_booking'), #added new path
+    
+    #path("reserve_rooms/", views.user_reserve_rooms, name="user_reserve_rooms"),
+    #path("manage_bookings/", views.user_manage_bookings, name="user_manage_bookings"),
+    #path("view_history/", views.user_view_history, name="user_view_history"),
  
 ]
